@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "title": "一种具有油水分离功能的铜网的制备方法",
+  "project_number": "0049",
+  "tagline": "功能材料 · 油水分离",
+  "audience": "油水分离设备和环保材料企业",
+  "identity": {
+    "institution": "厦门大学",
+    "patent_type": "发明专利",
+    "patent_number": "CN107158754B",
+    "source_id": "handbook"
+  },
+  "maturity": {
+    "label": "试生产、应用开发阶段",
+    "source_id": "handbook"
+  },
+  "contact": {
+    "label": "厦门大学转化办",
+    "phone": "0592-2181139",
+    "email": "cgzh@xmu.edu.cn",
+    "source_id": "handbook"
+  },
+  "sources": [
+    {
+      "id": "handbook",
+      "title": "厦门大学专利手册五星级项目",
+      "location": "用户提供的专利手册 PDF（不随技能包分发）",
+      "locator": "PDF 第28页，印刷页25，项目0049"
+    },
+    {
+      "id": "patent",
+      "title": "一种具有油水分离功能的铜网的制备方法",
+      "location": "https://patents.google.com/patent/CN107158754B/zh",
+      "locator": "摘要与说明书"
+    }
+  ],
+  "facts": [
+    {
+      "id": "process",
+      "claim": "激光加工铜片通孔及表面微纳米结构，再进行疏水化处理。",
+      "source_id": "handbook",
+      "locator": "成果介绍"
+    },
+    {
+      "id": "separate",
+      "claim": "疏水亲油表面使油穿过网孔、水保留在上方。",
+      "source_id": "patent",
+      "locator": "背景技术、图3与图4、实施例1"
+    },
+    {
+      "id": "adjust",
+      "claim": "激光参数可调控通孔大小、微纳米颗粒大小分布。",
+      "source_id": "handbook",
+      "locator": "成果介绍"
+    },
+    {
+      "id": "stage",
+      "claim": "试生产、应用开发阶段；拟转让；联系方式见手册。",
+      "source_id": "handbook",
+      "locator": "技术成熟度、转化意向、联系方式"
+    }
+  ],
+  "voice": {
+    "name": "zh-CN-YunxiNeural",
+    "rate": "-3%"
+  },
+  "music": {
+    "path": "@skill/assets/Inspired.mp3",
+    "credit": "Music: \"Inspired\" - Kevin MacLeod (incompetech.com)\nSource: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600022\nLicense: CC BY 4.0 https://creativecommons.org/licenses/by/4.0/\nChanges: excerpted, equalized, faded, mixed and ducked under narration."
+  },
+  "cover": {
+    "headline": [
+      "一张铜网",
+      "让油通过",
+      "把水留住？"
+    ],
+    "visual": "separation"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "headline": [
+        "一张铜网",
+        "让油通过，把水留住？"
+      ],
+      "narration": "一张铜网，能让油通过，把水留住吗？",
+      "evidence_ids": [
+        "separate"
+      ],
+      "visual": {
+        "type": "separation",
+        "mode": "oil_pass",
+        "footer": "疏水亲油 · 选择性透过",
+        "note": "分离原理示意 · 颜色用于区分油和水"
+      }
+    },
+    {
+      "id": "process",
+      "headline": [
+        "激光加工铜片",
+        "造孔，也造表面结构"
+      ],
+      "narration": "厦门大学这项专利，用激光在铜片上加工通孔，再构造表面的微纳米结构。",
+      "evidence_ids": [
+        "process"
+      ],
+      "visual": {
+        "type": "material",
+        "labels": [
+          "规则通孔阵列",
+          "表面微纳米结构"
+        ],
+        "note": "加工与微结构为示意，非实际比例"
+      }
+    },
+    {
+      "id": "principle",
+      "headline": [
+        "再经疏水化处理",
+        "赋予铜网分离功能"
+      ],
+      "narration": "经过疏水化处理，铜网具有疏水亲油的特性，让油穿过网孔，水留在上方，实现油水分离。",
+      "evidence_ids": [
+        "process",
+        "separate"
+      ],
+      "visual": {
+        "type": "separation",
+        "mode": "oil_pass",
+        "note": "原理示意 · 不代表所有油水体系的效果"
+      }
+    },
+    {
+      "id": "adjust",
+      "headline": [
+        "调节激光参数",
+        "调控铜网微观结构"
+      ],
+      "narration": "通过调节激光加工参数，还能调控通孔大小，以及表面微纳米结构。",
+      "evidence_ids": [
+        "adjust"
+      ],
+      "visual": {
+        "type": "flow",
+        "items": [
+          "激光加工参数",
+          "通孔大小",
+          "微纳米结构"
+        ],
+        "note": "结构调控关系示意"
+      }
+    },
+    {
+      "id": "value",
+      "headline": [
+        "面向油水分离",
+        "连接设备与材料企业"
+      ],
+      "narration": "这为油水分离设备和环保材料企业，提供了一种材料制备思路。目前，项目处于试生产、应用开发阶段。",
+      "evidence_ids": [
+        "process",
+        "stage"
+      ],
+      "visual": {
+        "type": "cards",
+        "items": [
+          "油水分离设备",
+          "环保功能材料",
+          "试生产、应用开发阶段"
+        ],
+        "note": "应用方向；成熟度依据专利手册"
+      }
+    },
+    {
+      "id": "cta",
+      "headline": [
+        "寻找合作企业",
+        "推动技术成果转化"
+      ],
+      "narration": "欢迎相关企业联系厦门大学，进一步了解技术，洽谈成果转化。",
+      "evidence_ids": [
+        "stage"
+      ],
+      "visual": {
+        "type": "cta"
+      }
+    }
+  ],
+  "review": {
+    "facts_checked": true,
+    "visual_meaning_checked": true
+  },
+  "closing_lines": [
+    "一种具有油水分离功能的",
+    "铜网的制备方法"
+  ]
+}

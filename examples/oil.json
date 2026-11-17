@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "title": "一种航空发动机滑油粘度的在线检测模型计算方法",
+  "project_number": "0299",
+  "tagline": "航空发动机 · 滑油在线监测",
+  "audience": "航空发动机监测与传感器企业",
+  "identity": {
+    "institution": "厦门大学",
+    "patent_type": "发明专利",
+    "patent_number": "CN114636641B",
+    "source_id": "handbook"
+  },
+  "maturity": {
+    "label": "样品、实验阶段",
+    "source_id": "handbook"
+  },
+  "contact": {
+    "label": "厦门大学转化办",
+    "phone": "0592-2181139",
+    "email": "cgzh@xmu.edu.cn",
+    "source_id": "handbook"
+  },
+  "sources": [
+    {
+      "id": "handbook",
+      "title": "厦门大学专利手册五星级项目",
+      "location": "用户提供的专利手册 PDF（不随技能包分发）",
+      "locator": "PDF 第153页，印刷页150，项目0299"
+    },
+    {
+      "id": "patent",
+      "title": "一种航空发动机滑油粘度的在线检测模型计算方法",
+      "location": "https://patents.google.com/patent/CN114636641B/zh",
+      "locator": "摘要与说明书"
+    }
+  ],
+  "facts": [
+    {
+      "id": "model",
+      "claim": "依据磨粒速度、滑移速度、拖曳系数和雷诺数建立计算模型，获得滑油黏度。",
+      "source_id": "handbook",
+      "locator": "成果介绍"
+    },
+    {
+      "id": "signal",
+      "claim": "电容信号时宽用于磨粒速度测量，配合流量计获得流体速度。",
+      "source_id": "patent",
+      "locator": "说明书测量与计算方法"
+    },
+    {
+      "id": "value",
+      "claim": "模型有利于滑油状态及发动机突发故障的在线监测。",
+      "source_id": "handbook",
+      "locator": "成果介绍"
+    },
+    {
+      "id": "stage",
+      "claim": "样品、实验阶段；拟转让；联系方式见手册。",
+      "source_id": "handbook",
+      "locator": "技术成熟度、意向与联系方式"
+    }
+  ],
+  "voice": {
+    "name": "zh-CN-YunxiNeural",
+    "rate": "-3%"
+  },
+  "music": {
+    "path": "@skill/assets/Inspired.mp3",
+    "credit": "Music: \"Inspired\" - Kevin MacLeod (incompetech.com)\nSource: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600022\nLicense: CC BY 4.0 https://creativecommons.org/licenses/by/4.0/\nChanges: excerpted, equalized, faded, mixed and ducked under narration."
+  },
+  "cover": {
+    "headline": [
+      "滑油黏度",
+      "能不能",
+      "实时知道？"
+    ],
+    "visual": "sensor"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "headline": [
+        "滑油黏度变化",
+        "你能多快知道？"
+      ],
+      "narration": "滑油黏度变化，可能提示发动机状态异常。怎样才能实时掌握？",
+      "evidence_ids": [
+        "value"
+      ],
+      "visual": {
+        "type": "sensor",
+        "labels": [
+          "滑油管路",
+          "信号变化（示意）"
+        ],
+        "note": "原理示意 · 非实测曲线"
+      }
+    },
+    {
+      "id": "need",
+      "headline": [
+        "从取样分析",
+        "走向在线监测"
+      ],
+      "narration": "厦门大学这项专利，通过传感信号与计算模型，探索滑油黏度的在线检测。",
+      "evidence_ids": [
+        "model",
+        "value"
+      ],
+      "visual": {
+        "type": "compare",
+        "items": [
+          "取样后进行分析",
+          "利用信号与模型在线计算"
+        ],
+        "labels": [
+          "常见流程",
+          "本项方案"
+        ],
+        "note": "流程示意"
+      }
+    },
+    {
+      "id": "signal",
+      "headline": [
+        "电容传感器",
+        "捕捉磨粒信号"
+      ],
+      "narration": "磨粒经过电容传感器时产生信号。利用信号时宽，计算磨粒的速度。",
+      "evidence_ids": [
+        "signal"
+      ],
+      "visual": {
+        "type": "sensor",
+        "labels": [
+          "电容传感器",
+          "电容信号时宽"
+        ],
+        "footer": "由信号计算磨粒速度",
+        "note": "原理示意 · 非实测信号"
+      }
+    },
+    {
+      "id": "model",
+      "headline": [
+        "从速度到黏度",
+        "模型自动求解"
+      ],
+      "narration": "结合流量计测得的流速，得到滑移速度，再通过拖曳系数和雷诺数，求解滑油黏度。",
+      "evidence_ids": [
+        "signal",
+        "model"
+      ],
+      "visual": {
+        "type": "flow",
+        "items": [
+          "滑移速度",
+          "拖曳系数",
+          "雷诺数",
+          "滑油黏度"
+        ],
+        "note": "求解关系示意"
+      }
+    },
+    {
+      "id": "value",
+      "headline": [
+        "面向发动机监测",
+        "探索在线检测应用"
+      ],
+      "narration": "这为发动机状态监测和传感器企业，提供了新的技术思路。目前，项目处于样品、实验阶段。",
+      "evidence_ids": [
+        "value",
+        "stage"
+      ],
+      "visual": {
+        "type": "cards",
+        "items": [
+          "滑油状态在线监测",
+          "对接传感与监测企业",
+          "样品、实验阶段"
+        ],
+        "note": "成熟度依据专利手册"
+      }
+    },
+    {
+      "id": "cta",
+      "headline": [
+        "寻找合作企业",
+        "推动技术成果转化"
+      ],
+      "narration": "欢迎相关企业联系厦门大学，进一步了解技术，洽谈成果转化。",
+      "evidence_ids": [
+        "stage"
+      ],
+      "visual": {
+        "type": "cta"
+      }
+    }
+  ],
+  "review": {
+    "facts_checked": true,
+    "visual_meaning_checked": true
+  },
+  "closing_lines": [
+    "一种航空发动机滑油粘度的",
+    "在线检测模型计算方法"
+  ]
+}

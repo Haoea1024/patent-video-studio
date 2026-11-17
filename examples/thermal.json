@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "title": "一种可智能调节芯片温度的微通道散热装置",
+  "project_number": "0512",
+  "tagline": "芯片热管理 · 微通道散热",
+  "audience": "芯片散热和热管理企业",
+  "identity": {
+    "institution": "厦门大学",
+    "patent_type": "发明专利",
+    "patent_number": "CN114373729B",
+    "source_id": "handbook"
+  },
+  "maturity": {
+    "label": "样品、实验阶段",
+    "source_id": "handbook"
+  },
+  "contact": {
+    "label": "厦门大学转化办",
+    "phone": "0592-2181139",
+    "email": "cgzh@xmu.edu.cn",
+    "source_id": "handbook"
+  },
+  "sources": [
+    {
+      "id": "handbook",
+      "title": "厦门大学专利手册五星级项目",
+      "location": "用户提供的专利手册 PDF（不随技能包分发）",
+      "locator": "PDF 第261页，印刷页258，项目0512"
+    },
+    {
+      "id": "patent",
+      "title": "一种可智能调节芯片温度的微通道散热装置",
+      "location": "https://patents.google.com/patent/CN114373729B/zh",
+      "locator": "摘要与说明书"
+    }
+  ],
+  "facts": [
+    {
+      "id": "structure",
+      "claim": "微通道中内置温控记忆合金弹簧。",
+      "source_id": "handbook",
+      "locator": "成果介绍"
+    },
+    {
+      "id": "response",
+      "claim": "局部升温使弹簧局部收缩，节距变小、扰动增强，邻近部分伸展。",
+      "source_id": "patent",
+      "locator": "说明书原理段"
+    },
+    {
+      "id": "gradient",
+      "claim": "梯度结构产生不同形变，目标是改善芯片温度均匀性。",
+      "source_id": "handbook",
+      "locator": "成果介绍"
+    },
+    {
+      "id": "stage",
+      "claim": "样品、实验阶段，拟转让；联系方式见手册。",
+      "source_id": "handbook",
+      "locator": "技术成熟度、意向与联系方式"
+    }
+  ],
+  "voice": {
+    "name": "zh-CN-YunxiNeural",
+    "rate": "-3%"
+  },
+  "music": {
+    "path": "@skill/assets/Inspired.mp3",
+    "credit": "Music: \"Inspired\" - Kevin MacLeod (incompetech.com)\nSource: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600022\nLicense: CC BY 4.0 https://creativecommons.org/licenses/by/4.0/\nChanges: excerpted, equalized, faded, mixed and ducked under narration."
+  },
+  "cover": {
+    "headline": [
+      "芯片发热不均",
+      "散热能否",
+      "自动调整？"
+    ],
+    "visual": "thermal"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "headline": [
+        "芯片发热不均",
+        "散热能否自动调整？"
+      ],
+      "narration": "芯片发热不均，散热能不能跟着温度自动调整？",
+      "evidence_ids": [
+        "gradient"
+      ],
+      "visual": {
+        "type": "thermal",
+        "mode": "hotspot",
+        "footer": "热量分布变化，散热需求也在变",
+        "note": "原理示意 · 非实测温度图"
+      }
+    },
+    {
+      "id": "structure",
+      "headline": [
+        "让散热结构",
+        "随温度变化"
+      ],
+      "narration": "厦门大学这项专利，在微通道里装入温控记忆合金弹簧，让散热结构随温度变化。",
+      "evidence_ids": [
+        "structure"
+      ],
+      "visual": {
+        "type": "thermal",
+        "mode": "coil",
+        "labels": [
+          "温控记忆合金弹簧",
+          "内置微通道"
+        ],
+        "note": "结构示意"
+      }
+    },
+    {
+      "id": "response",
+      "headline": [
+        "局部温度升高",
+        "弹簧自动响应"
+      ],
+      "narration": "局部温度升高，弹簧收缩，节距变小，增强流体扰动，带走局部热量。",
+      "evidence_ids": [
+        "response"
+      ],
+      "visual": {
+        "type": "thermal",
+        "mode": "coil",
+        "labels": [
+          "局部节距变小",
+          "流体扰动增强"
+        ],
+        "footer": "局部散热增强",
+        "note": "动作与流动均为原理示意"
+      }
+    },
+    {
+      "id": "gradient",
+      "headline": [
+        "梯度结构",
+        "不同位置 · 不同响应"
+      ],
+      "narration": "再通过梯度结构，让不同位置产生不同的形变，帮助改善芯片温度不均的问题。",
+      "evidence_ids": [
+        "gradient"
+      ],
+      "visual": {
+        "type": "flow",
+        "items": [
+          "梯度结构",
+          "分段形变 · 协同调节",
+          "改善芯片温度均匀性"
+        ],
+        "note": "目标与原理示意"
+      }
+    },
+    {
+      "id": "value",
+      "headline": [
+        "面向芯片热管理",
+        "探索自适应散热"
+      ],
+      "narration": "这为芯片散热和热管理企业，提供了一种自适应调节的技术思路。目前，项目处于样品、实验阶段。",
+      "evidence_ids": [
+        "structure",
+        "stage"
+      ],
+      "visual": {
+        "type": "cards",
+        "items": [
+          "芯片散热",
+          "热管理方案",
+          "样品、实验阶段"
+        ],
+        "note": "成熟度依据专利手册"
+      }
+    },
+    {
+      "id": "cta",
+      "headline": [
+        "寻找合作企业",
+        "推动技术成果转化"
+      ],
+      "narration": "欢迎相关企业联系厦门大学，进一步了解技术，洽谈成果转化。",
+      "evidence_ids": [
+        "stage"
+      ],
+      "visual": {
+        "type": "cta"
+      }
+    }
+  ],
+  "review": {
+    "facts_checked": true,
+    "visual_meaning_checked": true
+  },
+  "closing_lines": [
+    "一种可智能调节芯片温度的",
+    "微通道散热装置"
+  ]
+}
