@@ -247,7 +247,9 @@
             "separation",
             "material",
             "cards",
-            "image"
+            "image",
+            "mri",
+            "custom"
           ]
         },
         "image": {
@@ -310,7 +312,9 @@
                   "material",
                   "cards",
                   "image",
-                  "cta"
+                  "cta",
+                  "mri",
+                  "custom"
                 ]
               },
               "items": {
@@ -338,7 +342,12 @@
                   "oil_pass",
                   "water_pass",
                   "hotspot",
-                  "coil"
+                  "coil",
+                  "acquisition",
+                  "training",
+                  "iteration",
+                  "reconstruction",
+                  "application"
                 ]
               },
               "footer": {
@@ -355,6 +364,25 @@
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 300
+              },
+              "demonstration": {
+                "type": "string",
+                "minLength": 12,
+                "maxLength": 250
+              },
+              "motion_region": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 985
+                },
+                "minItems": 4,
+                "maxItems": 4
+              },
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,30}$"
               }
             },
             "required": [
@@ -398,6 +426,11 @@
         "minLength": 1,
         "maxLength": 18
       }
+    },
+    "animation_script": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
     }
   },
   "required": [

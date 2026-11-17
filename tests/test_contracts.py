@@ -5,7 +5,22 @@ spec=importlib.util.spec_from_file_location('pipeline',ROOT/'scripts/pipeline.py
 class Contracts(unittest.TestCase):
     def sample(self):return p.read(ROOT/'examples/mesh.json')
     def test_examples_valid(self):
-        for n in ['oil','thermal','mesh']:p.validate(p.read(ROOT/f'examples/{n}.json'))
+        for n in ['oil','thermal','mesh','mri']:p.validate(p.read(ROOT/f'examples/{n}.json'))
+    def test_text_only_video_is_rejected(self):
+        d=self.sample()
+        for s in d['scenes'][:-1]:s['visual']={'type':'flow','items':['输入','处理','输出']}
+        d['cover']['visual']='flow'
+        with self.assertRaisesRegex(ValueError,'At least two'):p.validate(d)
+    def test_mri_decorative_scenes_do_not_count(self):
+        d=p.read(ROOT/'examples/mri.json')
+        for s in d['scenes'][:-1]:s['visual']['mode']='acquisition'
+        with self.assertRaisesRegex(ValueError,'At least two'):p.validate(d)
+    def test_mechanism_requires_action_description(self):
+        d=self.sample();d['scenes'][0]['visual'].pop('demonstration')
+        with self.assertRaisesRegex(ValueError,'changing state'):p.validate(d)
+    def test_custom_requires_subject_region_and_script(self):
+        d=self.sample();d['scenes'][0]['visual']={'type':'custom','demonstration':'过滤粒子受筛孔选择性阻挡，形成截留与透过两种运动。'}
+        with self.assertRaisesRegex(ValueError,'custom requires'):p.validate(d)
     def test_patent_must_not_be_spoken(self):
         d=self.sample();d['scenes'][0]['narration']='专利号为 CN107158754B。'
         with self.assertRaises(ValueError):p.validate(d)

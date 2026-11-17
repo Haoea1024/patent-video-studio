@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "title": "一种物理智能高清磁共振扩散成像方法",
+  "closing_lines": [
+    "一种物理智能高清",
+    "磁共振扩散成像方法"
+  ],
+  "project_number": "0010",
+  "tagline": "磁共振扩散成像 · 物理智能",
+  "audience": "磁共振设备与影像重建软件企业",
+  "identity": {
+    "institution": "厦门大学",
+    "patent_type": "发明专利",
+    "patent_number": "CN115471580B",
+    "source_id": "grant"
+  },
+  "maturity": {
+    "label": "小批量生产、工程应用阶段",
+    "source_id": "handbook"
+  },
+  "contact": {
+    "label": "厦门大学转化办",
+    "phone": "0592-2181139",
+    "email": "cgzh@xmu.edu.cn",
+    "source_id": "handbook"
+  },
+  "sources": [
+    {
+      "id": "handbook",
+      "title": "2026厦门大学专利手册五星级项目",
+      "location": "用户提供的2026厦门大学专利手册（不随技能包分发）",
+      "locator": "PDF第8页，印刷页5，下半页项目0010"
+    },
+    {
+      "id": "grant",
+      "title": "Google Patents：引用专利清单中的CN115471580B",
+      "location": "https://patents.google.com/patent/CN113423004B/zh",
+      "locator": "Families Citing this family，CN115471580B，2025-07-18，厦门大学"
+    }
+  ],
+  "facts": [
+    {
+      "id": "physics",
+      "claim": "利用带相位的磁共振图像、通道灵敏度和仿真运动相位，生成大量多激发扩散加权训练数据。",
+      "source_id": "handbook",
+      "locator": "0010成果介绍步骤1—3"
+    },
+    {
+      "id": "network",
+      "claim": "迭代重建网络的迭代块含低秩、稀疏和数据校验模块；最后一个迭代块还含去噪模块。",
+      "source_id": "handbook",
+      "locator": "0010成果介绍步骤4"
+    },
+    {
+      "id": "reconstruct",
+      "claim": "利用仿真数据训练网络；输入待重建的多激发扩散加权数据，得到重建图像。",
+      "source_id": "handbook",
+      "locator": "0010成果介绍步骤4—6"
+    },
+    {
+      "id": "stage",
+      "claim": "成熟度为小批量生产、工程应用阶段，意向转化方式为拟许可，联系方式为转化办公开电话及邮箱。",
+      "source_id": "handbook",
+      "locator": "0010技术成熟度、意向转化方式及联系方式"
+    },
+    {
+      "id": "audience",
+      "claim": "行业分类包括医疗诊断监护及治疗设备制造，战新分类包括人工智能软件开发及先进医疗设备器械制造。",
+      "source_id": "handbook",
+      "locator": "0010行业分类与战新分类"
+    }
+  ],
+  "voice": {
+    "name": "zh-CN-YunxiNeural",
+    "rate": "-3%"
+  },
+  "music": {
+    "path": "@skill/assets/Inspired.mp3",
+    "credit": "Music: \"Inspired\" - Kevin MacLeod (incompetech.com)\nSource: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600022\nLicense: CC BY 4.0 https://creativecommons.org/licenses/by/4.0/\nChanges: excerpted, equalized, faded, mixed and ducked under narration."
+  },
+  "cover": {
+    "headline": [
+      "磁共振扩散成像",
+      "让物理模型",
+      "参与智能重建"
+    ],
+    "visual": "mri"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "headline": [
+        "磁共振扩散成像",
+        "让物理模型参与智能重建"
+      ],
+      "narration": "磁共振扩散成像，怎样让物理模型参与智能重建？厦门大学这项专利，给出了一条技术路径。",
+      "evidence_ids": [
+        "physics",
+        "reconstruct"
+      ],
+      "visual": {
+        "type": "mri",
+        "mode": "acquisition",
+        "demonstration": "扫描床平缓移动，扫描平面沿机身推进，采集信号沿连线进入网络节点。"
+      }
+    },
+    {
+      "id": "data",
+      "headline": [
+        "先用物理模型",
+        "生成网络的训练数据"
+      ],
+      "narration": "它结合磁共振图像、通道灵敏度和仿真运动相位，生成扩散加权训练数据。",
+      "evidence_ids": [
+        "physics"
+      ],
+      "visual": {
+        "type": "mri",
+        "mode": "training",
+        "demonstration": "原始图像和空间灵敏度保持稳定，运动相位矢量旋转，多组训练数据逐组生成。"
+      }
+    },
+    {
+      "id": "modules",
+      "headline": [
+        "重建网络内部",
+        "融入多种约束与去噪"
+      ],
+      "narration": "重建网络中，低秩、稀疏和数据校验模块参与迭代，最后再加入去噪模块。",
+      "evidence_ids": [
+        "network"
+      ],
+      "visual": {
+        "type": "mri",
+        "mode": "iteration",
+        "demonstration": "合成测试图在低秩、稀疏、数据校验的迭代作用示意中逐步成形，末轮显示去噪。"
+      }
+    },
+    {
+      "id": "rebuild",
+      "headline": [
+        "训练完成后",
+        "从采集数据到重建图像"
+      ],
+      "narration": "训练完成后，输入实际采集的多激发扩散加权数据，由网络完成图像重建。",
+      "evidence_ids": [
+        "reconstruct"
+      ],
+      "visual": {
+        "type": "mri",
+        "mode": "reconstruction",
+        "demonstration": "采样域数据逐行形成并流经网络，合成测试图由含噪重影状态逐渐形成清晰结构，非实测对比。"
+      }
+    },
+    {
+      "id": "value",
+      "headline": [
+        "面向设备与软件企业",
+        "探索技术合作"
+      ],
+      "narration": "面向磁共振设备和影像重建软件企业，手册标注项目处于小批量生产、工程应用阶段。",
+      "evidence_ids": [
+        "audience",
+        "stage"
+      ],
+      "visual": {
+        "type": "mri",
+        "mode": "application",
+        "demonstration": "扫描设备与重建工作站通过流动数据联动，表示设备与软件的应用方向。"
+      }
+    },
+    {
+      "id": "cta",
+      "headline": [
+        "厦门大学专利",
+        "欢迎洽谈技术许可"
+      ],
+      "narration": "项目拟通过许可方式转化，欢迎相关企业联系厦门大学，进一步了解技术，洽谈合作。",
+      "evidence_ids": [
+        "stage"
+      ],
+      "visual": {
+        "type": "cta"
+      }
+    }
+  ],
+  "review": {
+    "facts_checked": true,
+    "visual_meaning_checked": true
+  }
+}

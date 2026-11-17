@@ -7,7 +7,11 @@ if hasattr(sys.stdout,'reconfigure'):sys.stdout.reconfigure(encoding='utf-8')
 if hasattr(sys.stderr,'reconfigure'):sys.stderr.reconfigure(encoding='utf-8')
 
 ROOT = Path(__file__).resolve().parents[1]
-TYPES = {'flow','compare','sensor','thermal','separation','material','cards','image','cta'}
+TYPES = {'flow','compare','sensor','thermal','separation','material','cards','image','cta','mri','custom'}
+
+def is_demonstration(s):
+    v=s['visual']
+    return v['type'] in {'sensor','thermal','separation','material','custom'} or (v['type']=='mri' and v.get('mode') in {'training','iteration','reconstruction'})
 def read(p): return json.loads(Path(p).read_text(encoding='utf-8-sig'))
 def write(p, data):
     p=Path(p);p.parent.mkdir(parents=True,exist_ok=True)
@@ -53,7 +57,14 @@ def validate(d):
         if kind=='image' and not v.get('path'): raise ValueError(s['id']+': image path required')
         if kind=='separation' and v.get('mode','oil_pass') not in {'oil_pass','water_pass'}: raise ValueError('Unknown separation mode')
         if kind=='thermal' and v.get('mode') not in {'hotspot','coil'}: raise ValueError('thermal requires mode hotspot or coil')
-        if 'mode' in v and kind not in {'thermal','separation'}: raise ValueError(s['id']+': mode does not apply to this visual type')
+        if kind=='mri' and v.get('mode') not in {'acquisition','training','iteration','reconstruction','application'}:raise ValueError('mri requires a supported mode; see ANIMATION.md')
+        if kind=='custom' and (not d.get('animation_script') or not v.get('key') or not v.get('motion_region')):raise ValueError(s['id']+': custom requires animation_script, visual.key and motion_region')
+        if 'mode' in v and kind not in {'thermal','separation','mri'}: raise ValueError(s['id']+': mode does not apply to this visual type')
+        if is_demonstration(s) and not v.get('demonstration'):raise ValueError(s['id']+': describe the subject, changing state and technical cause in visual.demonstration')
+        if 'motion_region' in v:
+            x,y,w,h=v['motion_region']
+            if w<60 or h<60 or x<40 or y<370 or x+w>680 or y+h>985:raise ValueError(s['id']+': motion_region must enclose the subject inside x40..680, y370..985, minimum 60x60')
+    if sum(is_demonstration(s) for s in d['scenes'])<2:raise ValueError('At least two mechanism demonstrations are required; flow/cards/image and decorative motion do not count. See references/ANIMATION.md')
     if d['scenes'][-1]['visual']['type']!='cta': raise ValueError('Last scene must be cta')
     if not d['cover'].get('image') and d['cover']['visual'] not in {s['visual']['type'] for s in d['scenes']}:raise ValueError('cover.visual must match a scene type')
     if d.get('music',{}).get('path') and not d['music'].get('credit'): raise ValueError('Music credit/license missing')
@@ -202,6 +213,35 @@ def prepare_page(d,path,out,tl):
     data={'project':d,'timeline':tl,'images':images}
     (out/'data.js').write_text('const DATA='+json.dumps(data,ensure_ascii=False)+';',encoding='utf-8')
     shutil.copy2(ROOT/'assets/renderer.html',out/'index.html')
+    shutil.copy2(ROOT/'assets/mri.js',out/'mri.js')
+    custom=asset(d['animation_script'],path).read_text(encoding='utf-8') if d.get('animation_script') else ''
+    (out/'custom.js').write_text(custom,encoding='utf-8')
+
+def motion_review(page,d,tl,out):
+    """Sample the mechanism alone: no background particles, captions or fades."""
+    from PIL import Image, ImageDraw
+    import io, numpy as np
+    shots=[(i,s) for i,s in enumerate(tl['scenes']) if is_demonstration(s)]
+    body_duration=sum(s['duration'] for s in tl['scenes'] if s['visual']['type']!='cta')
+    share=sum(s['duration'] for _,s in shots)/body_duration
+    if share<.35:raise ValueError('Mechanism demonstrations must occupy at least 35% of non-CTA runtime; current %.1f%%'%(share*100))
+    sheet=Image.new('RGB',(900,340*len(shots)),'#07131b');reports=[]
+    for row,(i,s) in enumerate(shots):
+        frames=[];region=s['visual'].get('motion_region',[55,380,610,605]);x,y,w,h=region
+        for col,fraction in enumerate([.18,.51,.84]):
+            t=s['duration']*fraction
+            raw=page.evaluate('([i,t])=>{drawMechanismFrame(i,t);return c.toDataURL("image/png").split(",")[1]}',[i,t])
+            im=Image.open(io.BytesIO(base64.b64decode(raw))).convert('RGB')
+            roi=im.crop(tuple(round(v*1.5) for v in [x,y,x+w,y+h])).resize((200,200))
+            frames.append(np.asarray(roi,dtype=float))
+            tile=im.crop((60,555,1020,1480));tile.thumbnail((290,292));sheet.paste(tile,(col*300+(300-tile.width)//2,row*340+36))
+            ImageDraw.Draw(sheet).text((col*300+12,row*340+10),f'{s["id"]} +{t:.1f}s',fill='white')
+        changes=[float(np.mean(np.max(np.abs(a-b),axis=2)>12)) for a,b in zip(frames,frames[1:])]
+        reports.append({'scene':s['id'],'region':region,'changed_pixel_fractions':changes,'passed':max(changes)>=.003,'demonstration':s['visual']['demonstration']})
+    sheet.save(out/'motion-storyboard.jpg',quality=95)
+    report={'project_hash':data_hash(d),'duration_share':round(share,4),'scenes':reports,'passed':all(r['passed'] for r in reports),'limits':'Detects static subjects, not scientific validity. Review before/during/after and visual.demonstration manually.'}
+    write(out/'motion-check.json',report)
+    if not report['passed']:raise ValueError('Static mechanism detected. See motion-check.json; do not replace subject motion with particles or flashing text.')
 def render(d,path,out,preview_only=False):
     from PIL import Image
     from playwright.sync_api import sync_playwright
@@ -212,6 +252,7 @@ def render(d,path,out,preview_only=False):
         page.goto((out/'index.html').as_uri());page.evaluate('ready()')
         layout=page.evaluate('audit()');write(out/'layout-check.json',layout)
         if layout or errors:raise ValueError('Layout/JS checks failed: '+str(layout or errors))
+        motion_review(page,d,tl,out)
         times=[0]+[s['start']+s['duration']*.55 for s in tl['scenes']]+[tl['total']-1]
         cols=4;rows=math.ceil(len(times)/cols);sheet=Image.new('RGB',(cols*270,rows*480),'#050e14')
         for i,t in enumerate(times):
@@ -245,6 +286,8 @@ def render(d,path,out,preview_only=False):
 def check(d,path,out):
     import numpy as np
     tl=checkpoint(d,out);video=out/'video.mp4'
+    motion=read(out/'motion-check.json')
+    if motion.get('project_hash')!=data_hash(d) or not motion.get('passed'):raise ValueError('Missing, stale or failed motion review; run preview/render with the current project')
     decoded=run(['-i',video,'-map','0:v:0','-map','0:a:0','-f','null','-']).stderr.decode(errors='replace')
     (out/'decode-check.txt').write_text(decoded,encoding='utf-8')
     measurements=run(['-i',video,'-map','0:a:0','-af','loudnorm=I=-16:TP=-1.5:LRA=7:print_format=json','-f','null','-']).stderr.decode(errors='replace')
@@ -259,6 +302,7 @@ def check(d,path,out):
     frame_counts=re.findall(r'frame=\s*(\d+)',decoded);actual=int(frame_counts[-1]) if frame_counts else None
     report={'project_hash':data_hash(d),'duration_seconds':tl['total'],'frame_count':actual,'expected_frames':tl['total']*24,'size':'1080x1920','attached_cover':'attached pic' in decoded,'integrated_lufs':float(loud['input_i']),'true_peak_dbfs':float(loud['input_tp']),'music_below_voice_median_db':gap,'caption_alignment':sorted(set(s['alignment'] for s in tl['scenes'])),'decode_passed':True,'manual_review':'Inspect storyboard/cover and listen to video; automatic checks do not certify technical facts or pronunciation.'}
     passed=actual==tl['total']*24 and report['attached_cover'] and -21<=report['integrated_lufs']<=-13 and report['true_peak_dbfs']<=-1 and (gap is None or gap>=14)
+    report['motion_passed']=motion['passed'];report['demonstration_share_of_body']=motion['duration_share']
     report['passed']=passed;write(out/'validation.json',report)
     for name,t in [('first',0),('last',tl['total']-1)]:run(['-ss',t,'-i',video,'-map','0:v:0','-frames:v','1',out/f'final-{name}.png'])
     if not passed:raise RuntimeError('AV checks failed. See validation.json')
@@ -273,7 +317,7 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__);sub=ap.add_subparsers(dest='cmd',required=True)
     sub.add_parser('doctor')
     ex=sub.add_parser('extract');ex.add_argument('pdf');ex.add_argument('--out',required=True);ex.add_argument('--pages',default='')
-    init=sub.add_parser('init');init.add_argument('--out',required=True);init.add_argument('--example',choices=['oil','thermal','mesh'],default='mesh')
+    init=sub.add_parser('init');init.add_argument('--out',required=True);init.add_argument('--example',choices=['oil','thermal','mesh','mri'],default='mesh')
     for cmd in ['validate','audio','preview','render','check','build']:
         sp=sub.add_parser(cmd);sp.add_argument('project');sp.add_argument('--out',default='build');sp.add_argument('--external-audio')
     reg=sub.add_parser('registry');reg.add_argument('--file',required=True);reg.add_argument('--patent',required=True);reg.add_argument('--title',default='');reg.add_argument('--add',action='store_true')

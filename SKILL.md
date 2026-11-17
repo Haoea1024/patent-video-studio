@@ -1,6 +1,6 @@
 ---
 name: patent-video-studio
-description: 根据专利 PDF、技术手册或成果资料制作面向潜在合作企业的中文竖版专利宣传视频，交付带配音、同步字幕、轻背景音乐的 MP4 与独立封面。内置经过三个厦门大学样片提炼的动画模板、数据配置、音频混合和检查脚本；适用于 WorkBuddy 等能执行本地 Python 的 Agent。
+description: 根据专利 PDF、技术手册或成果资料制作面向潜在合作企业的中文竖版专利宣传视频，交付技术过程动画、配音、同步字幕、轻背景音乐的 MP4 与独立封面。含传感、热响应、分离、磁共振重建动画及专用动画接口，拦截纯文字讲解；适用于 WorkBuddy 等能执行本地 Python 的 Agent。
 ---
 
 # 专利短视频制作
@@ -10,13 +10,14 @@ description: 根据专利 PDF、技术手册或成果资料制作面向潜在合
 ## 首先做什么
 
 1. 确认当前任务文件和本技能的绝对路径，读 [运行环境](references/SETUP.md)，执行 `python "技能目录/scripts/pipeline.py" doctor`。本技能不依赖 Codex、Speko、Runway 或特定绘图工具；不要照抄别的机器的路径。
-2. 读 [内容策划规则](references/CONTENT.md) 和 [配置说明](references/CONFIG.md)。查看 `examples/*-approved-storyboard.jpg` 中一个最相关样片，理解画面密度和节奏，不必一次读全部示例。
-3. 按下方流程完成任务。每次只处理当前阶段和报错；不要让模型一次改写所有程序。正常任务只修改 `project.json`、素材和事实记录，不改 `scripts/pipeline.py` 或 `assets/renderer.html`。
+2. 读 [内容策划规则](references/CONTENT.md)、[配置说明](references/CONFIG.md) 和 [动画演示要求](references/ANIMATION.md)。查看一个最相关分镜参考；静态分镜不替代连续状态检查。
+3. 优先填写配置调用内置动画。不匹配的技术，按 ANIMATION 的 `custom` 接口在项目目录编写专用动画。不要重写配音/字幕/导出程序，也不要修改已安装技能里的公共渲染器。
 
 ## 已被用户认可的视觉与交付约定
 
 - 1080×1920，9:16，24fps；通常 45–70 秒，6 个镜头，按实际语音长度确定时长。
 - 深蓝底、暖白宋体标题、琥珀色重点、青色线条、轻微粒子和连续动画。手机看得清，每镜一个重点。
+- **技术过程必须演出来。** 至少两镜展示对象的状态变化，占非结尾正文时长至少35%，建议超过一半。每镜填写 `visual.demonstration`，说明“什么对象，受什么作用，从什么状态变成什么状态”。卡片出现、框间箭头、背景粒子、图片缩放都不算原理演示。不得把不适配的专利自动降级为纯文字视频。
 - 确认权利人和类型后，从第一帧持续展示“机构 · 专利类型”。厦大样例不是其他项目的默认事实；实用新型不能写成发明专利，未授权不能写成已授权。
 - 普通话男声、自然语速；配音不念专利号。正文和结尾字幕统一用半透明圆角底与琥珀色高亮。
 - 背景音乐始终低于解说，随人声自动压低。署名写进作品简介说明和文件元数据，**不加到视频画面**。
@@ -38,11 +39,11 @@ description: 根据专利 PDF、技术手册或成果资料制作面向潜在合
 
 `python "技能目录/scripts/pipeline.py" init --example mesh --out "新的项目目录"`
 
-选最接近的示例：`oil`（传感/计算）、`thermal`（结构响应）、`mesh`（材料/分离）。这只是复制起点：**要替换项目名、权利人、类型、号码、来源、事实、成熟度、联系方式、受众、六段文案和图解语义**，不能只换标题。示例中的审阅标志在 init 后自动重置为 false。
+选最接近的示例：`oil`（传感/计算）、`thermal`（结构响应）、`mesh`（材料/分离）、`mri`（磁共振数据生成与重建）。这只是复制起点：**要替换项目名、权利人、类型、号码、来源、事实、成熟度、联系方式、受众、六段文案和图解语义**，不能只换标题。示例中的审阅标志在 init 后自动重置为 false。
 
 填写 `project.json`，每段 `evidence_ids` 指向 `facts`，每项事实指向 `sources`。先证据、后文案。配置里路径相对 project.json；`@skill/` 仅指技能包内素材。输出使用独立 `build` 目录，不写进已安装技能目录。
 
-默认六镜：问题/钩子 → 方案 → 原理 → 关键特点 → 对接企业与成熟度 → 合作邀请。故事需要时可调整为 4–8 镜。最后一镜为 `cta`。不要强行把不同原理塞进同一种动画；其他领域优先 `flow`、`compare`、`cards` 或 `image`，详见配置说明。
+默认六镜：问题/钩子 → 方案 → 原理 → 关键特点 → 对接企业与成熟度 → 合作邀请。故事需要时可调整为 4–8 镜。最后一镜为 `cta`。中间至少两镜用匹配机制的内置或 `custom` 动画；`flow/cards/compare/image` 只辅助介绍。磁共振模板不能套到其他成像/诊疗技术，分离模板不能换标签冒充其他物理过程。
 
 `python "技能目录/scripts/pipeline.py" validate "项目目录/project.json" --out "项目目录/build"`
 
@@ -62,7 +63,7 @@ description: 根据专利 PDF、技术手册或成果资料制作面向潜在合
 
 `python "技能目录/scripts/pipeline.py" preview "项目目录/project.json" --out "项目目录/build"`
 
-打开 `storyboard.jpg`、`cover.png`、首镜/结尾 PNG；按 [验收清单](references/QA.md) 检查。事实与画面因果关系核对完，才把 `review.facts_checked` 和 `review.visual_meaning_checked` 设为 true；这两个字段是记录自己的核查结果，不能机械打勾。
+打开 `storyboard.jpg`、`motion-storyboard.jpg`、`motion-check.json`、`cover.png`、首镜/结尾 PNG。逐镜核对开始/中间/结束时对象发生了什么变化，变化是否解释了专利机制；检查主体区域的静态检测结果。像素变化不等于科学正确，仍按 [验收清单](references/QA.md) 目视审阅。核查完成才把 `review.facts_checked` 和 `review.visual_meaning_checked` 设为 true，不机械打勾。
 
 配置有任何改动后再跑 audio（未变的语音复用缓存），然后：
 

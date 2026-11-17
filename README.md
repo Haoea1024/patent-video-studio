@@ -16,6 +16,10 @@
 
 ## 看看效果
 
+**v0.2：必须把技术过程演出来。** 新增磁共振数据生成与重建动画、项目专用动画接口、主体连续帧检查。只有流程框、文字卡片或图片缩放的项目会被拦截。已安装用户请替换完整技能ZIP，并按[迁移说明](references/ANIMATION.md#从旧版升级)更新旧配置。
+
+[磁共振机制动画的连续状态预览](examples/mri-motion-storyboard.jpg) · [可直接运行的MRI示例](examples/mri.json) · [动画制作与验收](references/ANIMATION.md)
+
 设计风格来自三个专利样片：深蓝底、宋体标题、琥珀色重点、青色原理线条。机构标识从首帧出现，封面独立保存。
 
 | 滑油在线检测 | 芯片自适应散热 | 铜网油水分离 |
@@ -43,7 +47,8 @@
 
 ## 主要能力
 
-- **九类镜头**：流程、对比、传感信号、热响应、油水分离、材料加工、信息卡、图片和合作邀请。
+- **机制动画与辅助镜头**：传感信号、热响应、油水分离、材料加工，以及五种磁共振场景；流程、信息卡、图片用于辅助介绍。未覆盖的技术可通过项目专用Canvas接口扩展。
+- **防止纯文字出片**：至少两镜机制演示，占非结尾正文≥35%；逐镜记录动作与因果，自动采样三时点检查主体状态变化。背景粒子、字幕和转场不会计入主体检查。
 - **可追溯内容**：每段文案引用事实卡，事实卡记录文件页码或网页位置；标注实际成熟度。
 - **真实时间戳字幕**：支持逐词高亮；只有句级时间戳时整句显示，不伪造逐词同步。
 - **轻背景音乐**：内置配乐、均衡、淡入淡出和人声侧链压低；署名不占视频画面。
@@ -59,7 +64,7 @@
 2. 在 WorkBuddy 选择 **技能 / Skills → 添加技能 → 上传技能**，上传完整 ZIP。不要只上传 `SKILL.md`。
 3. 提供专利 PDF，并发送下面这段指令。
 
-> 请使用 patent-video-studio，根据这份专利资料制作一条面向潜在合作企业的中文竖版视频。先运行环境检查，使用内置脚本和模板，不重写渲染器。核对事实、权利人、成熟度和已做项目，再填写 project.json。完成配音、真实时间戳字幕、轻背景音乐和独立封面，检查后交付 MP4。资料里找不到的信息不要编。
+> 请使用 patent-video-studio，根据这份专利资料制作面向潜在合作企业的竖版视频。先读 ANIMATION.md，核对事实并为每个技术镜头写明对象、作用和状态变化。至少两镜真实机制演示，不要做成文字卡片或只有流程箭头。优先使用匹配的内置动画；没有匹配模板就在项目中通过custom接口制作专用动画，不重写公共导出程序。查看motion-storyboard.jpg确认初态/中间/结果变化，完成配音、同步字幕、轻配乐和独立封面，检查后交付MP4。资料里找不到的信息不要编。
 
 安装入口依据 [WorkBuddy 官方文档](https://www.workbuddy.ai/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills)。**目前尚未在 WorkBuddy 客户端实际导入验证**；客户端入口和权限以实际版本为准。首次运行仍需准备 Python、依赖和浏览器，具体步骤见 [环境说明](references/SETUP.md)。
 
@@ -105,7 +110,7 @@ python3 -m venv .venv
 # 1. 提取文本，渲染需要查看的页；页码是 PDF 实际页序号
 python scripts/pipeline.py extract "D:/materials/patent.pdf" --pages 1,2 --out "../my-patent/source"
 
-# 2. 复制最接近的配置起点：oil / thermal / mesh
+# 2. 复制最接近的配置起点：oil / thermal / mesh / mri
 python scripts/pipeline.py init --example mesh --out "../my-patent"
 
 # 3. 编辑 project.json，替换全部项目事实与文案，再校验
@@ -115,7 +120,8 @@ python scripts/pipeline.py validate "../my-patent/project.json" --out "../my-pat
 python scripts/pipeline.py audio "../my-patent/project.json" --out "../my-patent/build"
 python scripts/pipeline.py preview "../my-patent/project.json" --out "../my-patent/build"
 
-# 5. 查看分镜和封面，核对事实与图解语义后将 review 两项设为 true
+# 5. 查看分镜、motion-storyboard.jpg、motion-check.json和封面
+# 核对事实与对象状态变化后将 review 两项设为 true
 # 配置有变化，重新 audio；未变的语音会复用缓存
 python scripts/pipeline.py audio "../my-patent/project.json" --out "../my-patent/build"
 python scripts/pipeline.py render "../my-patent/project.json" --out "../my-patent/build"
@@ -151,19 +157,21 @@ python scripts/pipeline.py render "../my-patent/project.json" --out "../my-paten
 | `video.mp4` | 1080×1920、24fps，H.264 + AAC 的竖版视频 |
 | `cover.png` | 独立封面；平台不读取 MP4 封面元数据时手动上传 |
 | `storyboard.jpg` | 各镜头预览，用于检查布局与叙事 |
+| `motion-storyboard.jpg` / `motion-check.json` | 技术主体三时点预览、变化检测与正文演示时长占比 |
 | `captions.srt` / `narration.txt` | 可复用的字幕与配音文案 |
 | `publish-notes.txt` | 发布时需保留的音乐署名 |
 | `validation.json` | 自动检查结果，不替代事实审核和试听 |
 
 ## 验证与边界
 
-已在 Windows / Python 3.14 环境完成真实出片、三个示例预览、中文路径迁移、外部音频和封面检查；另有 11 项自动测试。54 秒迁移验证样片完整解码通过，人声区间的音乐中位电平约低 21 dB。详见 [验证记录](references/VERIFIED.md)。
+已在 Windows / Python 3.14 环境完成真实出片、四类示例主体动画检查、中文路径迁移、外部音频和封面检查；现有18项自动测试，包括冻结主体的失败案例与custom接口。实际视频的音频与动画检查记录见 [验证记录](references/VERIFIED.md)。
 
 当前边界：
 
 - 尚未验证 WorkBuddy 实际导入、指定国产模型或 macOS / Linux 的完整流程。
 - 自动检查不证明专利事实、专业术语发音或物理因果正确。
-- 固定图解不能覆盖所有新原理；不匹配时使用流程或图片镜头，专用三维动画需扩展。
+- 固定图解不能覆盖所有新原理；不匹配时需要通过custom接口制作专用动画，不能自动退回纯文字讲解。模型的专用动画代码能力仍会影响最终质感。
+- 像素变化检测不等于科学有效性验证；需核查动作因果、模拟标注和视觉质量。磁共振测试图为合成演示，不是专利算法实测或临床性能证据。
 - 排版封面可离线渲染；生成式封面需要实际可用的图像工具。
 - PDF 提取和编码在本地进行；默认 Edge TTS 会发送配音文本。完全本地需求请用外部本地语音流程。
 
@@ -175,6 +183,7 @@ python scripts/pipeline.py render "../my-patent/project.json" --out "../my-paten
 | 安装依赖、处理环境问题 | [SETUP](references/SETUP.md) |
 | 选题、写文案、核实证据 | [CONTENT](references/CONTENT.md) |
 | 选镜头、填写配置 | [CONFIG](references/CONFIG.md) |
+| 让技术过程动起来、扩展未覆盖机制 | [ANIMATION](references/ANIMATION.md) |
 | 接入其他语音服务 | [AUDIO](references/AUDIO.md) |
 | 制作独立封面 | [COVER](references/COVER.md) |
 | 检查效果与常见错误 | [QA](references/QA.md) |
