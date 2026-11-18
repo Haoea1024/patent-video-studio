@@ -19,7 +19,7 @@
 | facts | id、claim、source_id、locator；不要把未核实推测放成事实 |
 | voice | name 默认 zh-CN-YunxiNeural，rate 默认 -3%；语音缓存会据此刷新 |
 | music | path 与 credit；无配乐时用空对象，但正常请求应保留轻配乐 |
-| cover | headline 2–3 行、visual 镜头类型，可选 image 路径 |
+| cover | headline 2–3行、visual镜头类型；可选image路径、scene_id指定主视觉镜头、time选取状态（0–30秒） |
 | scenes | 4–8 个镜头，最后必须 cta |
 | review | facts_checked、visual_meaning_checked；自己核实完成才设 true |
 | animation_script | 可选，项目专用Canvas动画JS路径；使用custom镜头时必填 |
@@ -71,7 +71,9 @@ mode 不适用的镜头不要填写。不要用 labels 把错误物理动画重�
 
 ## 封面
 
-cover.headline 每行最多 13 字，通常三行。cover.visual 选择正文实际使用的一类非 cta 图解。可不填 image，程序会生成宋体大标题与同类示意的排版封面；填入 image 时，保留图片比例补边至 1080×1920。AI 生成封面也应先检查文字和机制再填路径。
+封面默认必做并单独交付。cover.headline每行最多13字，推荐4–10字，不照搬示例或直接放完整专利长名称。cover.visual选择正文实际使用的一类非cta图解；scene_id可精确指定匹配类型的镜头，time可选其代表状态。缺省image时自动生成图解排版封面；填image时按比例补边至1080×1920并保留原画面，不额外叠字。详见[COVER](COVER.md)。
+
+`python scripts/pipeline.py cover PROJECT --out BUILD` 可在配音前独立运行，生成图片、手机缩略图和检查记录。没有图像服务不是省略封面的理由。封面内容随当前项目适配；图片文件缺失时应修正路径，不悄悄换掉用户指定图片。
 
 ## 完整执行顺序
 

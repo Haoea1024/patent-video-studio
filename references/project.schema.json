@@ -256,6 +256,15 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 300
+        },
+        "scene_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,25}$"
+        },
+        "time": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 30
         }
       },
       "required": [

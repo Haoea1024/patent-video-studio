@@ -6,6 +6,9 @@ class Contracts(unittest.TestCase):
     def sample(self):return p.read(ROOT/'examples/mesh.json')
     def test_examples_valid(self):
         for n in ['oil','thermal','mesh','mri']:p.validate(p.read(ROOT/f'examples/{n}.json'))
+    def test_cover_hero_must_exist_and_match_type(self):
+        d=self.sample();d['cover']['scene_id']='cta'
+        with self.assertRaisesRegex(ValueError,'cover.scene_id'):p.validate(d)
     def test_text_only_video_is_rejected(self):
         d=self.sample()
         for s in d['scenes'][:-1]:s['visual']={'type':'flow','items':['输入','处理','输出']}

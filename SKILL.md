@@ -10,7 +10,7 @@ description: 根据专利 PDF、技术手册或成果资料制作面向潜在合
 ## 首先做什么
 
 1. 确认当前任务文件和本技能的绝对路径，读 [运行环境](references/SETUP.md)，执行 `python "技能目录/scripts/pipeline.py" doctor`。本技能不依赖 Codex、Speko、Runway 或特定绘图工具；不要照抄别的机器的路径。
-2. 读 [内容策划规则](references/CONTENT.md)、[配置说明](references/CONFIG.md) 和 [动画演示要求](references/ANIMATION.md)。查看一个最相关分镜参考；静态分镜不替代连续状态检查。
+2. 读 [内容策划规则](references/CONTENT.md)、[配置说明](references/CONFIG.md)、[动画演示要求](references/ANIMATION.md) 和 [封面制作](references/COVER.md)。查看一个最相关分镜参考；静态分镜不替代连续状态检查。
 3. 优先填写配置调用内置动画。不匹配的技术，按 ANIMATION 的 `custom` 接口在项目目录编写专用动画。不要重写配音/字幕/导出程序，也不要修改已安装技能里的公共渲染器。
 
 ## 已被用户认可的视觉与交付约定
@@ -21,7 +21,7 @@ description: 根据专利 PDF、技术手册或成果资料制作面向潜在合
 - 确认权利人和类型后，从第一帧持续展示“机构 · 专利类型”。厦大样例不是其他项目的默认事实；实用新型不能写成发明专利，未授权不能写成已授权。
 - 普通话男声、自然语速；配音不念专利号。正文和结尾字幕统一用半透明圆角底与琥珀色高亮。
 - 背景音乐始终低于解说，随人声自动压低。署名写进作品简介说明和文件元数据，**不加到视频画面**。
-- 封面独立 PNG，同时可嵌入 MP4 封面元数据；**不把封面作为片头插入播放内容**。用户指定封面时直接沿用。
+- **默认自动设计并交付适合当前专利的独立封面，无需用户另行提醒。** 标题提炼应用痛点/价值，主视觉体现当前专利对象或机制，吸引潜在合作企业点开；不能照搬示例文字、用纯标题页或随意截一帧代替。用户指定封面时沿用，不擅自重画。无绘图服务时必须完成内置图解排版封面，不省略封面、不要求用户自行制作。封面输出PNG并写入MP4元数据，**不插入视频播放时间线**。
 - 所有定量性能、成熟度、合作方式和联系方式必须有出处。没有成熟度就写“成熟度待核实”，不要默认为已产业化。
 - 本技能示例反映本用户已认可的偏好；用户后来提出的新要求优先。
 
@@ -57,13 +57,17 @@ description: 根据专利 PDF、技术手册或成果资料制作面向潜在合
 
 缓存按文本和声音参数校验，修改文案后必须重新执行 audio。字幕来自真实词级时间戳；只有句级时间戳时显示整句，不伪造逐词高亮。不能直接按字数平均分配字幕并声称已同步。
 
-封面参照 [封面指导](references/COVER.md)：可调用当前环境真正可用的绘图工具，或直接使用程序提供的排版封面。不要假定国内工具支持 Codex 的工具名/API。没有绘图服务也可出完整视频；排版封面与生成式三维封面质感有差别，交付时如实说明。音乐包内已带一首适配示例和许可说明，无需重新找音乐。
+**封面是本阶段必做任务。** 按 [封面指导](references/COVER.md) 自动提炼2–3行短标题，选择与专利相符的主视觉和代表状态，填写 `cover`；有实际可用的绘图工具时优先生成精致主视觉/完整封面，图片保存到项目并填 `cover.image`；工具缺失或生成失败时直接使用内置图解排版，不停在提示词或方案上。
+
+`python "技能目录/scripts/pipeline.py" cover "项目目录/project.json" --out "项目目录/build"`
+
+此命令不依赖配音、时间轴或外部绘图API，生成 `cover.png`、`cover-thumbnail.jpg`、`cover-brief.json`、`cover-prompt.txt` 和 `cover-check.json`。打开原图及手机缩略图，检查标题醒目、技术主视觉适配、身份正确、无旧项目内容；发现问题就修改并重新生成，不能只检查文件存在。`preview/render/build`也会自动生成封面。音乐包内已带适配音乐和许可说明，无需重新找音乐。
 
 ### D. 预览、修正、导出
 
 `python "技能目录/scripts/pipeline.py" preview "项目目录/project.json" --out "项目目录/build"`
 
-打开 `storyboard.jpg`、`motion-storyboard.jpg`、`motion-check.json`、`cover.png`、首镜/结尾 PNG。逐镜核对开始/中间/结束时对象发生了什么变化，变化是否解释了专利机制；检查主体区域的静态检测结果。像素变化不等于科学正确，仍按 [验收清单](references/QA.md) 目视审阅。核查完成才把 `review.facts_checked` 和 `review.visual_meaning_checked` 设为 true，不机械打勾。
+打开 `storyboard.jpg`、`motion-storyboard.jpg`、`motion-check.json`、`cover.png`、`cover-thumbnail.jpg`、首镜/结尾 PNG。逐镜核对开始/中间/结束时对象发生了什么变化，变化是否解释了专利机制；检查主体区域的静态检测结果。像素变化不等于科学正确，仍按 [验收清单](references/QA.md) 目视审阅。核查完成才把 `review.facts_checked` 和 `review.visual_meaning_checked` 设为 true，不机械打勾。
 
 配置有任何改动后再跑 audio（未变的语音复用缓存），然后：
 
@@ -73,7 +77,7 @@ description: 根据专利 PDF、技术手册或成果资料制作面向潜在合
 
 ### E. 交付与记录
 
-交付 `video.mp4`、`cover.png`，同时保留 `project.json`、`captions.srt`、`narration.txt`、`publish-notes.txt` 和 `validation.json`。不把未通过自动检查的文件称为最终成片，不自动发布到平台或联系任何企业。
+最终回复分别提供 **视频与独立封面两个可访问的文件链接/附件**，明确封面不在播放时展示。不能只发MP4、把封面藏在工程目录或仅写“已配封面”。交付 `video.mp4`、`cover.png`，保留封面简报/提示词/检查、`project.json`、`captions.srt`、`narration.txt`、`publish-notes.txt` 和 `validation.json`。缺少可用封面时不能称任务完整完成。不自动发布到平台或联系任何企业。
 
 把完成项目加入工作目录的 `completed-projects.json`；同一主题需要重做时按用户指令，不阻止。
 

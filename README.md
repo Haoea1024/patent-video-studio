@@ -16,6 +16,8 @@
 
 ## 看看效果
 
+**v0.2.1：自动制作并单独交付封面。** 根据当前专利受众与技术内容选择短标题和主视觉；有绘图工具时调用生成，没有时自动生成图解排版封面。新增无需配音即可运行的 `cover` 命令、手机缩略图和封面检查。不是只给提示词，也不把封面藏在MP4中。详见[封面制作](references/COVER.md)。
+
 **v0.2：必须把技术过程演出来。** 新增磁共振数据生成与重建动画、项目专用动画接口、主体连续帧检查。只有流程框、文字卡片或图片缩放的项目会被拦截。已安装用户请替换完整技能ZIP，并按[迁移说明](references/ANIMATION.md#从旧版升级)更新旧配置。
 
 [磁共振机制动画的连续状态预览](examples/mri-motion-storyboard.jpg) · [可直接运行的MRI示例](examples/mri.json) · [动画制作与验收](references/ANIMATION.md)
@@ -52,7 +54,7 @@
 - **可追溯内容**：每段文案引用事实卡，事实卡记录文件页码或网页位置；标注实际成熟度。
 - **真实时间戳字幕**：支持逐词高亮；只有句级时间戳时整句显示，不伪造逐词同步。
 - **轻背景音乐**：内置配乐、均衡、淡入淡出和人声侧链压低；署名不占视频画面。
-- **独立封面**：PNG 单独交付，同时写入 MP4 封面元数据，不插入播放内容。
+- **自动独立封面**：当前专利的短标题＋技术主视觉，无绘图插件也能生成；输出PNG、手机缩略图、制作简报与检查记录。独立交付并嵌入MP4元数据，不插入播放内容。
 - **输出检查**：字段、出处引用、禁读专利号、字幕行数、旧缓存、帧数、解码、响度和真峰值。
 - **外部配音接口**：默认 Edge TTS；也可导入国产或本地服务生成的音频与时间戳。
 
@@ -64,7 +66,7 @@
 2. 在 WorkBuddy 选择 **技能 / Skills → 添加技能 → 上传技能**，上传完整 ZIP。不要只上传 `SKILL.md`。
 3. 提供专利 PDF，并发送下面这段指令。
 
-> 请使用 patent-video-studio，根据这份专利资料制作面向潜在合作企业的竖版视频。先读 ANIMATION.md，核对事实并为每个技术镜头写明对象、作用和状态变化。至少两镜真实机制演示，不要做成文字卡片或只有流程箭头。优先使用匹配的内置动画；没有匹配模板就在项目中通过custom接口制作专用动画，不重写公共导出程序。查看motion-storyboard.jpg确认初态/中间/结果变化，完成配音、同步字幕、轻配乐和独立封面，检查后交付MP4。资料里找不到的信息不要编。
+> 请使用 patent-video-studio，根据这份专利资料制作面向潜在合作企业的竖版视频。先读ANIMATION.md和COVER.md，核对事实并为每个技术镜头写明对象、作用和状态变化。至少两镜真实机制演示，不要做成文字卡片或只有流程箭头。优先使用匹配的内置动画；不匹配就通过项目custom接口制作。自动设计适合当前专利、能吸引潜在企业的独立封面；没有绘图工具就直接生成图解排版封面，不省略。检查连续帧和手机封面缩略图，完成配音、字幕、轻配乐，最终分别提供MP4和封面PNG两个文件。资料里找不到的信息不要编。
 
 安装入口依据 [WorkBuddy 官方文档](https://www.workbuddy.ai/docs/workbuddy/From-Beginner-to-Expert-Guide/Function-Description/Skills)。**目前尚未在 WorkBuddy 客户端实际导入验证**；客户端入口和权限以实际版本为准。首次运行仍需准备 Python、依赖和浏览器，具体步骤见 [环境说明](references/SETUP.md)。
 
@@ -116,7 +118,8 @@ python scripts/pipeline.py init --example mesh --out "../my-patent"
 # 3. 编辑 project.json，替换全部项目事实与文案，再校验
 python scripts/pipeline.py validate "../my-patent/project.json" --out "../my-patent/build"
 
-# 4. 配音与预览
+# 4. 自动封面（不依赖配音），随后配音与预览
+python scripts/pipeline.py cover "../my-patent/project.json" --out "../my-patent/build"
 python scripts/pipeline.py audio "../my-patent/project.json" --out "../my-patent/build"
 python scripts/pipeline.py preview "../my-patent/project.json" --out "../my-patent/build"
 
@@ -156,6 +159,8 @@ python scripts/pipeline.py render "../my-patent/project.json" --out "../my-paten
 | --- | --- |
 | `video.mp4` | 1080×1920、24fps，H.264 + AAC 的竖版视频 |
 | `cover.png` | 独立封面；平台不读取 MP4 封面元数据时手动上传 |
+| `cover-thumbnail.jpg` | 270×480手机缩略图，检查标题和主视觉可读性 |
+| `cover-brief.json` / `cover-prompt.txt` / `cover-check.json` | 当前专利封面简报、可供绘图工具使用的提示词、尺寸及文件一致性检查 |
 | `storyboard.jpg` | 各镜头预览，用于检查布局与叙事 |
 | `motion-storyboard.jpg` / `motion-check.json` | 技术主体三时点预览、变化检测与正文演示时长占比 |
 | `captions.srt` / `narration.txt` | 可复用的字幕与配音文案 |
@@ -164,7 +169,7 @@ python scripts/pipeline.py render "../my-patent/project.json" --out "../my-paten
 
 ## 验证与边界
 
-已在 Windows / Python 3.14 环境完成真实出片、四类示例主体动画检查、中文路径迁移、外部音频和封面检查；现有18项自动测试，包括冻结主体的失败案例与custom接口。实际视频的音频与动画检查记录见 [验证记录](references/VERIFIED.md)。
+已在 Windows / Python 3.14 环境完成真实出片、四类示例主体动画检查、中文路径迁移、外部音频和封面检查；现有23项自动测试，包括冻结主体、custom接口、无配音独立出封面、指定图片保留和空白/过期封面拦截。实际验证记录见 [验证记录](references/VERIFIED.md)。
 
 当前边界：
 

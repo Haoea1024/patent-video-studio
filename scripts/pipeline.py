@@ -67,6 +67,9 @@ def validate(d):
     if sum(is_demonstration(s) for s in d['scenes'])<2:raise ValueError('At least two mechanism demonstrations are required; flow/cards/image and decorative motion do not count. See references/ANIMATION.md')
     if d['scenes'][-1]['visual']['type']!='cta': raise ValueError('Last scene must be cta')
     if not d['cover'].get('image') and d['cover']['visual'] not in {s['visual']['type'] for s in d['scenes']}:raise ValueError('cover.visual must match a scene type')
+    if d['cover'].get('scene_id'):
+        hero=next((s for s in d['scenes'] if s['id']==d['cover']['scene_id']),None)
+        if not hero or hero['visual']['type']!=d['cover']['visual']:raise ValueError('cover.scene_id must identify a scene matching cover.visual')
     if d.get('music',{}).get('path') and not d['music'].get('credit'): raise ValueError('Music credit/license missing')
     return d
 def split_phrases(text):
@@ -242,6 +245,51 @@ def motion_review(page,d,tl,out):
     report={'project_hash':data_hash(d),'duration_share':round(share,4),'scenes':reports,'passed':all(r['passed'] for r in reports),'limits':'Detects static subjects, not scientific validity. Review before/during/after and visual.demonstration manually.'}
     write(out/'motion-check.json',report)
     if not report['passed']:raise ValueError('Static mechanism detected. See motion-check.json; do not replace subject motion with particles or flashing text.')
+def cover_assets(page,d,path,out):
+    """Always deliver a separate, current-project cover and phone-sized preview."""
+    from PIL import Image, ImageStat
+    cv=d['cover'];hero=next((s for s in d['scenes'] if s['id']==cv.get('scene_id')),None)
+    hero=hero or next((s for s in d['scenes'] if s['visual']['type']==cv['visual']),None)
+    brief={'title':d['title'],'audience':d['audience'],'identity':d['identity'],'headline':cv['headline'],
+           'maturity':d['maturity'],'hero_scene':hero['id'] if hero else None,
+           'hero_description':hero['visual'].get('demonstration',hero['headline']) if hero else 'Provided cover image',
+           'evidence_ids':hero['evidence_ids'] if hero else [],'mode':'provided_image' if cv.get('image') else 'local_illustrated_layout'}
+    write(out/'cover-brief.json',brief)
+    prompt='制作1080×1920竖版专利视频独立封面，面向'+d['audience']+'。\n顶部准确写：'+d['identity']['institution']+' · '+d['identity']['patent_type']+'。\n主标题逐行写：'+' / '.join(cv['headline'])+'。\n主视觉依据：'+str(brief['hero_description'])+'。\n深蓝背景、暖白宋体大标题、琥珀重点、青色辅助，主体有空间层次，边缘留安全距离，手机缩略图可读。\n成熟度：'+d['maturity']['label']+'；底栏：寻找合作企业 · 欢迎洽谈。标注原理示意，不加未经证实的性能数字、认证、临床效果或校徽。不把封面放进视频播放时间线。\n'
+    (out/'cover-prompt.txt').write_text(prompt,encoding='utf-8')
+    target=out/'cover.png'
+    if cv.get('image'):
+        source=asset(cv['image'],path)
+        temp=out/'cover.rendering.png'
+        run(['-i',source,'-vf','scale=1080:1920:force_original_aspect_ratio=decrease:flags=lanczos,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=0x050e14','-frames:v','1',temp]);temp.replace(target)
+    else:
+        raw=page.evaluate('()=>{drawCover();return c.toDataURL("image/png").split(",")[1]}')
+        target.write_bytes(base64.b64decode(raw))
+    with Image.open(target) as im:
+        rgb=im.convert('RGB');size=im.size;contrast=max(ImageStat.Stat(rgb).stddev)
+        rgb.resize((270,480),Image.Resampling.LANCZOS).save(out/'cover-thumbnail.jpg',quality=95)
+    report={'project_hash':data_hash(d),'image_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),
+            'size':list(size),'mode':brief['mode'],'pixel_stddev':round(contrast,2),
+            'passed':size==(1080,1920) and contrast>4,
+            'manual_review':'Check thumbnail readability, current patent identity, factual headline and appropriate hero. Pixel checks do not verify meaning.'}
+    write(out/'cover-check.json',report)
+    if not report['passed']:raise ValueError('Cover is blank or wrong size; inspect cover-check.json')
+
+def cover_only(d,path,out):
+    from playwright.sync_api import sync_playwright
+    # A cover needs no TTS, audio credentials or audio timeline. Do not save this stub as timeline.json.
+    tl={'total':len(d['scenes'])*9,'scenes':[dict(s,start=i*9,duration=9,captions=[]) for i,s in enumerate(d['scenes'])]}
+    prepare_page(d,path,out,tl)
+    with sync_playwright() as p:
+        b=launch(p);page=b.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+        try:
+            page.goto((out/'index.html').as_uri());page.evaluate('ready()')
+            if page.evaluate('audit()') or errors:raise ValueError('Cover layout or JavaScript failed')
+            cover_assets(page,d,path,out)
+            if errors:raise ValueError(str(errors))
+        finally:b.close()
+    print('Cover ready:',out/'cover.png','; inspect:',out/'cover-thumbnail.jpg')
+
 def render(d,path,out,preview_only=False):
     from PIL import Image
     from playwright.sync_api import sync_playwright
@@ -260,12 +308,7 @@ def render(d,path,out,preview_only=False):
             f=out/f'preview-{i:02}.png';f.write_bytes(base64.b64decode(raw))
             with Image.open(f) as im:sheet.paste(im.resize((270,480)),((i%cols)*270,(i//cols)*480))
         sheet.save(out/'storyboard.jpg',quality=95)
-        if d['cover'].get('image'):
-            source=asset(d['cover']['image'],path)
-            run(['-i',source,'-vf','scale=1080:1920:force_original_aspect_ratio=decrease:flags=lanczos,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=0x050e14','-frames:v','1',out/'cover.png'])
-        else:
-            raw=page.evaluate('()=>{drawCover();return c.toDataURL("image/png").split(",")[1]}')
-            (out/'cover.png').write_bytes(base64.b64decode(raw))
+        cover_assets(page,d,path,out)
         if preview_only:b.close();print('Preview ready:',out/'storyboard.jpg');return
         if not d['review']['facts_checked'] or not d['review']['visual_meaning_checked']:raise ValueError('Review source facts and visual direction, then set review flags. Preview remains available.')
         credit=d.get('music',{}).get('credit','');frames=round(tl['total']*24)
@@ -288,6 +331,8 @@ def check(d,path,out):
     tl=checkpoint(d,out);video=out/'video.mp4'
     motion=read(out/'motion-check.json')
     if motion.get('project_hash')!=data_hash(d) or not motion.get('passed'):raise ValueError('Missing, stale or failed motion review; run preview/render with the current project')
+    cover_report=read(out/'cover-check.json')
+    if not cover_report.get('passed') or cover_report.get('project_hash')!=data_hash(d) or cover_report.get('image_sha256')!=hashlib.sha256((out/'cover.png').read_bytes()).hexdigest():raise ValueError('Missing, stale or changed cover; regenerate and review the current project cover')
     decoded=run(['-i',video,'-map','0:v:0','-map','0:a:0','-f','null','-']).stderr.decode(errors='replace')
     (out/'decode-check.txt').write_text(decoded,encoding='utf-8')
     measurements=run(['-i',video,'-map','0:a:0','-af','loudnorm=I=-16:TP=-1.5:LRA=7:print_format=json','-f','null','-']).stderr.decode(errors='replace')
@@ -303,6 +348,7 @@ def check(d,path,out):
     report={'project_hash':data_hash(d),'duration_seconds':tl['total'],'frame_count':actual,'expected_frames':tl['total']*24,'size':'1080x1920','attached_cover':'attached pic' in decoded,'integrated_lufs':float(loud['input_i']),'true_peak_dbfs':float(loud['input_tp']),'music_below_voice_median_db':gap,'caption_alignment':sorted(set(s['alignment'] for s in tl['scenes'])),'decode_passed':True,'manual_review':'Inspect storyboard/cover and listen to video; automatic checks do not certify technical facts or pronunciation.'}
     passed=actual==tl['total']*24 and report['attached_cover'] and -21<=report['integrated_lufs']<=-13 and report['true_peak_dbfs']<=-1 and (gap is None or gap>=14)
     report['motion_passed']=motion['passed'];report['demonstration_share_of_body']=motion['duration_share']
+    report['cover_passed']=cover_report['passed'];report['cover_mode']=cover_report['mode']
     report['passed']=passed;write(out/'validation.json',report)
     for name,t in [('first',0),('last',tl['total']-1)]:run(['-ss',t,'-i',video,'-map','0:v:0','-frames:v','1',out/f'final-{name}.png'])
     if not passed:raise RuntimeError('AV checks failed. See validation.json')
@@ -318,7 +364,7 @@ def main():
     sub.add_parser('doctor')
     ex=sub.add_parser('extract');ex.add_argument('pdf');ex.add_argument('--out',required=True);ex.add_argument('--pages',default='')
     init=sub.add_parser('init');init.add_argument('--out',required=True);init.add_argument('--example',choices=['oil','thermal','mesh','mri'],default='mesh')
-    for cmd in ['validate','audio','preview','render','check','build']:
+    for cmd in ['validate','audio','cover','preview','render','check','build']:
         sp=sub.add_parser(cmd);sp.add_argument('project');sp.add_argument('--out',default='build');sp.add_argument('--external-audio')
     reg=sub.add_parser('registry');reg.add_argument('--file',required=True);reg.add_argument('--patent',required=True);reg.add_argument('--title',default='');reg.add_argument('--add',action='store_true')
     a=ap.parse_args()
@@ -337,6 +383,7 @@ def main():
     out.mkdir(parents=True,exist_ok=True);owner=out/'owner.json'
     if owner.exists() and read(owner).get('project')!=str(path):raise ValueError('Output belongs to another project; use a new --out directory')
     write(owner,{'project':str(path)})
+    if a.cmd=='cover':cover_only(d,path,out);return
     if a.cmd=='validate':print('Configuration and evidence references valid. Truth still requires source review.');return
     if a.cmd in {'audio','build'}:audio(d,path,out,a.external_audio)
     if a.cmd in {'preview','render','build'}:render(d,path,out,a.cmd=='preview')
